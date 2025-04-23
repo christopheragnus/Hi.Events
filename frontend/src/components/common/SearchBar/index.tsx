@@ -1,11 +1,12 @@
-import {TextInput, TextInputProps} from '@mantine/core';
-import {IconSearch, IconX} from '@tabler/icons-react';
+import { TextInput, TextInputProps } from '@mantine/core';
+import { IconSearch, IconX } from '@tabler/icons-react';
 import classes from './SearchBar.module.scss';
-import {useEffect, useState} from "react";
-import {SortSelector, SortSelectorProps} from "../SortSelector";
-import {t} from "@lingui/macro";
+import { useEffect, useState } from "react";
+import { SortSelector, SortSelectorProps } from "../SortSelector";
+import { t } from "@lingui/macro";
 import classNames from "classnames";
-import {PaginationData, QueryFilters} from "../../../types.ts";
+import { PaginationData, QueryFilters } from "../../../types.ts";
+import ErrorBoundary from '../ErrorBoundary';
 
 interface SearchBarProps extends TextInputProps {
     onClear: () => void;
@@ -19,7 +20,37 @@ interface SearchBarWrapperProps {
     pagination?: PaginationData,
 }
 
-export const SearchBarWrapper = ({setSearchParams, searchParams, pagination, placeholder}: SearchBarWrapperProps) => {
+export const SearchBarWrapper = ({ setSearchParams, searchParams, pagination, placeholder }: SearchBarWrapperProps) => {
+    console.log('pagination', pagination)
+    console.log('searchParams', searchParams)
+
+    let sortPropsValue: SortSelectorProps | undefined = undefined;
+
+    if (pagination && Array.isArray(pagination.allowed_sorts) && pagination.allowed_sorts.length > 0) {
+        let selectedSortValue: string;
+        if (searchParams.sortBy && searchParams.sortDirection) {
+            selectedSortValue = `${searchParams.sortBy}:${searchParams.sortDirection}`;
+        } else if (pagination.default_sort && pagination.default_sort_direction) {
+            selectedSortValue = `${pagination.default_sort}:${pagination.default_sort_direction}`;
+        } else {
+            // Fallback to an empty string if no sort is actively selected or defined as default
+            selectedSortValue = '';
+        }
+
+        // Only define sortProps if there are allowed sorts
+        sortPropsValue = {
+            selected: selectedSortValue,
+            options: pagination.allowed_sorts,
+            onSortSelect: (key, sortDirection) => {
+                setSearchParams({
+                    sortBy: key,
+                    sortDirection: sortDirection,
+                    pageNumber: 1, // Reset page number on sort change
+                });
+            },
+        };
+    }
+
     return (
         <SearchBar
             value={searchParams.query}
@@ -34,23 +65,12 @@ export const SearchBarWrapper = ({setSearchParams, searchParams, pagination, pla
                 pageNumber: 1,
             })}
             placeholder={placeholder || t`Search...`}
-            sortProps={pagination ? {
-                selected: searchParams.sortBy && searchParams.sortDirection
-                    ? searchParams.sortBy + ':' + searchParams.sortDirection
-                    : pagination?.default_sort + ':' + pagination?.default_sort_direction,
-                options: pagination?.allowed_sorts,
-                onSortSelect: (key, sortDirection) => {
-                    setSearchParams({
-                        sortBy: key,
-                        sortDirection: sortDirection,
-                    })
-                },
-            } : undefined}
+            sortProps={sortPropsValue}
         />
     );
 }
 
-export const SearchBar = ({sortProps, onClear, value, onChange, ...props}: SearchBarProps) => {
+export const SearchBar = ({ sortProps, onClear, value, onChange, ...props }: SearchBarProps) => {
     const [searchValue, setSearchValue] = useState<typeof value>(value);
 
     useEffect(() => {
@@ -61,7 +81,7 @@ export const SearchBar = ({sortProps, onClear, value, onChange, ...props}: Searc
         <div className={classNames(classes.searchBarWrapper, props.className)}>
             <TextInput
                 className={classes.searchBar}
-                leftSection={<IconSearch size="1.1rem" stroke={1.5}/>}
+                leftSection={<IconSearch size="1.1rem" stroke={1.5} />}
                 radius="sm"
                 size="md"
                 value={searchValue}
@@ -73,19 +93,21 @@ export const SearchBar = ({sortProps, onClear, value, onChange, ...props}: Searc
                     }
                 }}
                 rightSection={<IconX aria-label={t`Clear Search Text`}
-                                     color={'#ddd'}
-                                     style={{cursor: 'pointer'}}
-                                     display={value ? 'block' : 'none'}
-                                     onClick={() => onClear()}
+                    color={'#ddd'}
+                    style={{ cursor: 'pointer' }}
+                    display={value ? 'block' : 'none'}
+                    onClick={() => onClear()}
                 />}
             />
-
-            {sortProps
-                && <SortSelector
-                    selected={sortProps.selected}
-                    options={sortProps.options}
-                    onSortSelect={sortProps.onSortSelect}/>
-            }
+            {sortProps && (
+                <ErrorBoundary fallback={<div style={{ color: 'orange', fontSize: '0.9em' }}>{t`Sort error`}</div>}>
+                    <SortSelector
+                        selected={sortProps.selected}
+                        options={sortProps.options}
+                        onSortSelect={sortProps.onSortSelect}
+                    />
+                </ErrorBoundary>
+            )}
         </div>
     );
 };

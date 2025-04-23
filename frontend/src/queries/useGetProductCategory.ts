@@ -9,7 +9,7 @@ export const useGetEventProductCategory = (productCategoryId: IdParam, eventId: 
         queryKey: [GET_EVENT_PRODUCT_CATEGORY_QUERY_KEY, eventId, productCategoryId],
 
         queryFn: async () => {
-            const {data} = await productCategoryClient.get(eventId, productCategoryId);
+            const data = await productCategoryClient.get(eventId, productCategoryId);
             return data;
         }
     });

@@ -1,3 +1,5 @@
+
+
 /**
  * @todo - This file needs to be organized better. Split into multiple files.
  */
@@ -314,6 +316,11 @@ export enum ProductStatus {
     Inactive = 'INACTIVE',
 }
 
+export interface MoneyObject {
+    cents: number;
+    currency_iso: string;
+}
+
 export interface ProductPrice {
     id?: number;
     label?: string;
@@ -344,7 +351,8 @@ export interface Product {
     type: ProductPriceType;
     product_type: ProductType;
     description?: string;
-    price?: number;
+    price_cents?: number;
+    price_currency?: string;
     prices?: ProductPrice[];
     price_before_discount?: number;
     is_discounted?: boolean;
@@ -376,6 +384,17 @@ export interface Product {
     product_category_id?: IdParam;
 }
 
+export interface ProductCategoryAttributes {
+    id: number;
+    name: string;
+    description: string | null;
+    event_id: number;
+    is_hidden: boolean;
+    no_products_message: string | null;
+    order: number | null;
+    products: Product[];
+}
+
 export interface ProductCategory {
     id?: number;
     name: string;
@@ -384,6 +403,7 @@ export interface ProductCategory {
     event_id?: number;
     is_hidden?: boolean;
     no_products_message?: string;
+    attributes?: ProductCategoryAttributes;
 }
 
 export interface Attendee {

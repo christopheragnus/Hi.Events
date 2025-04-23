@@ -8,6 +8,9 @@ export default defineConfig({
         include: ["react-router"]
     },
     server: {
+        proxy: {
+            "/api": "http://localhost:3000",
+          },
         hmr: {
             port: 24678,
             protocol: "ws",

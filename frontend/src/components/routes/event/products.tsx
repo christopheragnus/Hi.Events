@@ -1,21 +1,23 @@
-import {useParams} from "react-router";
-import {useDisclosure} from "@mantine/hooks";
-import {Button, Menu} from "@mantine/core";
-import {IconCategory, IconChevronDown, IconPlus, IconShoppingCart} from "@tabler/icons-react";
-import {PageTitle} from "../../common/PageTitle";
-import {PageBody} from "../../common/PageBody";
-import {CreateProductModal} from "../../modals/CreateProductModal";
-import {ProductCategoryList} from "../../common/ProductsTable";
-import {ToolBar} from "../../common/ToolBar";
-import {TableSkeleton} from "../../common/TableSkeleton";
-import {t} from "@lingui/macro";
-import {useUrlHash} from "../../../hooks/useUrlHash.ts";
-import {useGetEvent} from "../../../queries/useGetEvent.ts";
-import {useGetEventProductCategories} from "../../../queries/useGetProductCategories.ts";
-import {SearchBar} from "../../common/SearchBar";
-import {useState} from "react";
-import {CreateProductCategoryModal} from "../../modals/CreateProductCategoryModal";
-import {IdParam} from "../../../types.ts";
+import { useParams } from "react-router";
+import { useDisclosure } from "@mantine/hooks";
+import { Button, Menu } from "@mantine/core";
+import { IconCategory, IconChevronDown, IconPlus, IconShoppingCart } from "@tabler/icons-react";
+import { PageTitle } from "../../common/PageTitle";
+import { PageBody } from "../../common/PageBody";
+import { CreateProductModal } from "../../modals/CreateProductModal";
+import { ProductCategoryList } from "../../common/ProductsTable";
+import { ToolBar } from "../../common/ToolBar";
+import { TableSkeleton } from "../../common/TableSkeleton";
+import { t } from "@lingui/macro";
+import { useUrlHash } from "../../../hooks/useUrlHash.ts";
+import { useGetEvent } from "../../../queries/useGetEvent.ts";
+import { useGetEventProductCategories } from "../../../queries/useGetProductCategories.ts";
+import { SearchBar } from "../../common/SearchBar";
+import { useState } from "react";
+import { CreateProductCategoryModal } from "../../modals/CreateProductCategoryModal";
+import { IdParam } from "../../../types.ts";
+
+import stubData from '../../../stubs/product_category_stub.json'; // Adjust the path as needed
 
 export const Products = () => {
     const [createProductModalOpen, {
@@ -26,8 +28,8 @@ export const Products = () => {
         open: openCreateProductCategoryModal,
         close: closeCreateProductCategoryModal
     }] = useDisclosure(false);
-    const {eventId} = useParams();
-    const {data: event} = useGetEvent(eventId);
+    const { eventId } = useParams();
+    const { data: event } = useGetEvent(eventId);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategoryId, setSelectedCategoryId] = useState<IdParam>(null);
 
@@ -50,24 +52,24 @@ export const Products = () => {
                     <SearchBar
                         onClear={() => setSearchTerm('')}
                         placeholder={t`Search products`}
-                        rightSection={<IconChevronDown/>}
+                        rightSection={<IconChevronDown />}
                         value={searchTerm}
                         onChange={(event) => setSearchTerm(event.target.value)}
                     />
                 )}
             >
                 <Menu
-                    transitionProps={{transition: 'pop-top-right'}}
+                    transitionProps={{ transition: 'pop-top-right' }}
                     position="bottom"
                     width={220}
                     withinPortal
                 >
                     <Menu.Target>
                         <Button
-                            leftSection={<IconPlus/>}
+                            leftSection={<IconPlus />}
                             color={'green'}
                             rightSection={
-                                <IconChevronDown stroke={1.5}/>
+                                <IconChevronDown stroke={1.5} />
                             }
                             pr={12}
                         >
@@ -99,22 +101,22 @@ export const Products = () => {
                 </Menu>
             </ToolBar>
 
-            <TableSkeleton isVisible={!productCategories || !event}/>
+            <TableSkeleton isVisible={!productCategories || !event} />
 
             {(event && productCategories)
                 && (<ProductCategoryList
-                        initialCategories={productCategories}
-                        event={event}
-                        searchTerm={searchTerm}
-                        onCreateOpen={openCreateProduct}
-                    />
+                    initialCategories={productCategories}
+                    event={event}
+                    searchTerm={searchTerm}
+                    onCreateOpen={openCreateProduct}
+                />
                 )}
 
             {createProductModalOpen &&
                 <CreateProductModal selectedCategoryId={selectedCategoryId} onClose={closeCreateProductModal}
-                                    isOpen={createProductModalOpen}/>}
+                    isOpen={createProductModalOpen} />}
             {createProductCategoryModalOpen && <CreateProductCategoryModal onClose={closeCreateProductCategoryModal}
-                                                                           isOpen={createProductCategoryModalOpen}/>}
+                isOpen={createProductCategoryModalOpen} />}
         </PageBody>
     );
 };

@@ -1,11 +1,11 @@
-export const formatCurrency = (value: number | string, currency = 'USD') => {
+export const formatCurrency = (value: number, currency = 'USD') => {
     const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: currency,
         minimumFractionDigits: 2,
     });
 
-    return formatter.format(value as number);
+    return formatter.format(value/100);
 }
 
 export const getCurrencySymbol = (currencyCode: string): string => {

@@ -7,7 +7,9 @@ export const GET_TAXES_AND_FEES_QUERY_KEY = 'getTaxesAndFees';
 
 export const useGetTaxesAndFees = ()  => {
     const meQuery = useGetMe();
-    const accountId = meQuery.data?.account_id as IdParam;
+    const accountId = meQuery.data?.data?.id as IdParam;
+
+    console.log('useGetTaxandFees', meQuery)
 
     return useQuery<GenericPaginatedResponse<TaxAndFee>>({
             queryKey: [GET_TAXES_AND_FEES_QUERY_KEY, accountId],

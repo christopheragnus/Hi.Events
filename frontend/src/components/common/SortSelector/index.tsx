@@ -1,6 +1,6 @@
-import {Select} from "@mantine/core";
+import { Select } from "@mantine/core";
 import classes from "./SortSelector.module.scss";
-import {SortDirectionLabel} from "../../../types.ts";
+import { SortDirectionLabel } from "../../../types.ts";
 
 export interface SortSelectorProps {
     options: Record<string, SortDirectionLabel>,
@@ -8,14 +8,14 @@ export interface SortSelectorProps {
     selected: string,
 }
 
-export const SortSelector = ({options, onSortSelect, selected}: SortSelectorProps) => {
-    const sortOptions = Object.entries(options).flatMap(([key, {asc, desc}]) => {
+export const SortSelector = ({ options, onSortSelect, selected }: SortSelectorProps) => {
+    const sortOptions = Object.entries(options).flatMap(([key, { asc, desc }]) => {
         const optionsForThisKey = [];
         if (asc) {
-            optionsForThisKey.push({value: `${key}:asc`, label: asc});
+            optionsForThisKey.push({ value: `${key}:asc`, label: asc });
         }
         if (desc) {
-            optionsForThisKey.push({value: `${key}:desc`, label: desc});
+            optionsForThisKey.push({ value: `${key}:desc`, label: desc });
         }
         return optionsForThisKey;
     });

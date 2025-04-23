@@ -1,12 +1,12 @@
-import {useState} from 'react';
-import {IconCopyPlus, IconDotsVertical, IconEyeOff, IconPencil, IconSend, IconTrash} from "@tabler/icons-react";
+import { useState } from 'react';
+import { IconCopyPlus, IconDotsVertical, IconEyeOff, IconPencil, IconSend, IconTrash } from "@tabler/icons-react";
 import classes from "../ProductsTable.module.scss";
 import classNames from "classnames";
-import {Badge, Button, Group, Menu, Popover} from "@mantine/core";
+import { Badge, Button, Group, Menu, Popover } from "@mantine/core";
 import Truncate from "../../Truncate";
-import {t} from "@lingui/macro";
-import {relativeDate} from "../../../../utilites/dates.ts";
-import {formatCurrency} from "../../../../utilites/currency.ts";
+import { t } from "@lingui/macro";
+import { relativeDate } from "../../../../utilites/dates.ts";
+import { formatCurrency } from "../../../../utilites/currency.ts";
 import {
     IdParam,
     MessageType,
@@ -16,14 +16,14 @@ import {
     ProductPriceType,
     ProductType
 } from "../../../../types.ts";
-import {useDisclosure} from "@mantine/hooks";
-import {useDeleteProduct} from "../../../../mutations/useDeleteProduct.ts";
-import {showError, showSuccess} from "../../../../utilites/notifications.tsx";
-import {EditProductModal} from "../../../modals/EditProductModal";
-import {SendMessageModal} from "../../../modals/SendMessageModal";
-import {SortArrows} from "../../SortArrows";
-import {useSortProducts} from "../../../../mutations/useSortProducts.ts";
-import {DuplicateProductModal} from "../../../modals/DuplicateProductModal";
+import { useDisclosure } from "@mantine/hooks";
+import { useDeleteProduct } from "../../../../mutations/useDeleteProduct.ts";
+import { showError, showSuccess } from "../../../../utilites/notifications.tsx";
+import { EditProductModal } from "../../../modals/EditProductModal";
+import { SendMessageModal } from "../../../modals/SendMessageModal";
+import { SortArrows } from "../../SortArrows";
+import { useSortProducts } from "../../../../mutations/useSortProducts.ts";
+import { DuplicateProductModal } from "../../../modals/DuplicateProductModal";
 
 interface SortableProductProps {
     product: Product;
@@ -32,7 +32,7 @@ interface SortableProductProps {
     categories: ProductCategory[];
 }
 
-export const SortableProduct = ({product, currencyCode, category, categories}: SortableProductProps) => {
+export const SortableProduct = ({ product, currencyCode, category, categories }: SortableProductProps) => {
     const [isEditModalOpen, editModal] = useDisclosure(false);
     const [isDuplicateModalOpen, duplicateModal] = useDisclosure(false);
     const [isMessageModalOpen, messageModal] = useDisclosure(false);
@@ -50,7 +50,7 @@ export const SortableProduct = ({product, currencyCode, category, categories}: S
     }
 
     const handleDeleteProduct = (productId: IdParam, eventId: IdParam) => {
-        deleteMutation.mutate({productId, eventId}, {
+        deleteMutation.mutate({ productId, eventId }, {
             onSuccess: () => {
                 showSuccess(t`Product deleted successfully`);
             },
@@ -84,6 +84,11 @@ export const SortableProduct = ({product, currencyCode, category, categories}: S
 
     const getPriceRange = (product: Product) => {
         const productPrices: ProductPrice[] = product.prices as ProductPrice[];
+
+        if (product.price_cents) {
+            return formatCurrency(product.price_cents, currencyCode);
+        }
+
         if (!Array.isArray(productPrices) || productPrices.length === 0) {
             return t`Price not set`;
         }
@@ -142,10 +147,10 @@ export const SortableProduct = ({product, currencyCode, category, categories}: S
 
             updatedCategories = categories.map((cat, index) => {
                 if (index === categoryIndex) {
-                    return {...cat, products: sourceProducts};
+                    return { ...cat, products: sourceProducts };
                 }
                 if (index === targetCategoryIndex) {
-                    return {...cat, products: targetProducts};
+                    return { ...cat, products: targetProducts };
                 }
                 return cat;
             });
@@ -159,7 +164,7 @@ export const SortableProduct = ({product, currencyCode, category, categories}: S
                 [updatedProducts[newIndex], updatedProducts[currentIndex]];
 
             updatedCategories = categories.map(cat =>
-                cat.id === category.id ? {...cat, products: updatedProducts} : cat
+                cat.id === category.id ? { ...cat, products: updatedProducts } : cat
             );
         }
 
@@ -204,11 +209,11 @@ export const SortableProduct = ({product, currencyCode, category, categories}: S
                     <div className={classes.productDetails}>
                         <div className={classes.title}>
                             <div className={classes.heading}>{t`Title`}</div>
-                            <Truncate text={product.title} length={60}/>
+                            <Truncate text={product.title} length={60} />
                             {(product.is_hidden_without_promo_code || product.is_hidden) && (
                                 <Popover>
                                     <Popover.Target>
-                                        <IconEyeOff style={{cursor: 'pointer'}} size={14}/>
+                                        <IconEyeOff style={{ cursor: 'pointer' }} size={14} />
                                     </Popover.Target>
                                     <Popover.Dropdown>
                                         {product.is_hidden
@@ -223,7 +228,7 @@ export const SortableProduct = ({product, currencyCode, category, categories}: S
                             <Popover>
                                 <Popover.Target>
                                     <Badge className={classes.status} color={product.is_available ? 'green' : 'orange'}
-                                           variant="outline">
+                                        variant="outline">
                                         {product.is_available ? t`On Sale` : t`Not On Sale`}
                                     </Badge>
                                 </Popover.Target>
@@ -258,7 +263,7 @@ export const SortableProduct = ({product, currencyCode, category, categories}: S
                                     </div>
                                     <div className={classes.desktopAction}>
                                         <Button size="xs" variant="transparent">
-                                            <IconDotsVertical/>
+                                            <IconDotsVertical />
                                         </Button>
                                     </div>
                                 </div>
@@ -269,26 +274,26 @@ export const SortableProduct = ({product, currencyCode, category, categories}: S
                                 {product.product_type === ProductType.Ticket && (
                                     <Menu.Item
                                         onClick={() => handleModalClick(product.id, messageModal)}
-                                        leftSection={<IconSend size={14}/>}>
+                                        leftSection={<IconSend size={14} />}>
                                         {t`Message Attendees`}
                                     </Menu.Item>
                                 )}
 
                                 <Menu.Item
                                     onClick={() => handleModalClick(product.id, editModal)}
-                                    leftSection={<IconPencil size={14}/>}>
+                                    leftSection={<IconPencil size={14} />}>
                                     {t`Edit Product`}
                                 </Menu.Item>
                                 <Menu.Item
                                     onClick={() => handleModalClick(product.id, duplicateModal)}
-                                    leftSection={<IconCopyPlus size={14}/>}>
+                                    leftSection={<IconCopyPlus size={14} />}>
                                     {t`Duplicate Product`}
                                 </Menu.Item>
                                 <Menu.Label>{t`Danger zone`}</Menu.Label>
                                 <Menu.Item
                                     onClick={() => handleDeleteProduct(product.id, product.event_id)}
                                     color="red"
-                                    leftSection={<IconTrash size={14}/>}>
+                                    leftSection={<IconTrash size={14} />}>
                                     {t`Delete product`}
                                 </Menu.Item>
                             </Menu.Dropdown>
@@ -297,15 +302,15 @@ export const SortableProduct = ({product, currencyCode, category, categories}: S
                 </div>
                 {product.product_type === ProductType.Ticket && (
                     <>
-                        <div className={classes.halfCircle}/>
-                        <div className={`${classes.halfCircle} ${classes.right}`}/>
+                        <div className={classes.halfCircle} />
+                        <div className={`${classes.halfCircle} ${classes.right}`} />
                     </>
                 )}
 
             </div>
             {isDuplicateModalOpen &&
-                <DuplicateProductModal originalProductId={productId} onClose={duplicateModal.close}/>}
-            {isEditModalOpen && <EditProductModal productId={productId} onClose={editModal.close}/>}
+                <DuplicateProductModal originalProductId={productId} onClose={duplicateModal.close} />}
+            {isEditModalOpen && <EditProductModal productId={productId} onClose={editModal.close} />}
             {isMessageModalOpen && (
                 <SendMessageModal
                     onClose={messageModal.close}

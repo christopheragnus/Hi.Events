@@ -1,23 +1,24 @@
-import {GenericModalProps, IdParam, ProductCategory} from "../../../types.ts";
-import {Modal} from "../../common/Modal";
-import {t} from "@lingui/macro";
-import {LoadingMask} from "../../common/LoadingMask";
-import {Button} from "@mantine/core";
-import {useGetEventProductCategory} from "../../../queries/useGetProductCategory.ts";
-import {useParams} from "react-router";
-import {useEditProductCategory} from "../../../mutations/useEditProductCategory.ts";
-import {useForm} from "@mantine/form";
-import {useEffect} from "react";
-import {ProductCategoryForm} from "../../forms/ProductCategoryForm";
-import {showSuccess} from "../../../utilites/notifications.tsx";
-import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
+import { GenericModalProps, IdParam, ProductCategory } from "../../../types.ts";
+import { Modal } from "../../common/Modal";
+import { t } from "@lingui/macro";
+import { LoadingMask } from "../../common/LoadingMask";
+import { Button } from "@mantine/core";
+import { useGetEventProductCategory } from "../../../queries/useGetProductCategory.ts";
+import { useParams } from "react-router";
+import { useEditProductCategory } from "../../../mutations/useEditProductCategory.ts";
+import { useForm } from "@mantine/form";
+import { useEffect } from "react";
+import { ProductCategoryForm } from "../../forms/ProductCategoryForm";
+import { showSuccess } from "../../../utilites/notifications.tsx";
+import { useFormErrorResponseHandler } from "../../../hooks/useFormErrorResponseHandler.tsx";
 
-export const EditProductCategoryModal = ({onClose, productCategoryId}: GenericModalProps & {
+export const EditProductCategoryModal = ({ onClose, productCategoryId }: GenericModalProps & {
     productCategoryId: IdParam
 }) => {
+
     const errorHandler = useFormErrorResponseHandler();
-    const {eventId} = useParams();
-    const {data: productCategory, isFetched} = useGetEventProductCategory(productCategoryId, eventId);
+    const { eventId } = useParams();
+    const { data: productCategory, isFetched } = useGetEventProductCategory(productCategoryId, eventId);
     const form = useForm<ProductCategory>({
         initialValues: {
             name: '',
@@ -34,11 +35,10 @@ export const EditProductCategoryModal = ({onClose, productCategoryId}: GenericMo
         }
 
         form.setValues({
-            id: productCategory.id,
-            name: productCategory.name,
-            description: productCategory.description,
-            is_hidden: productCategory.is_hidden,
-            no_products_message: productCategory.no_products_message,
+            name: productCategory.attributes.name,
+            description: productCategory.attributes.description,
+            is_hidden: productCategory.attributes.is_hidden,
+            no_products_message: productCategory.attributes.no_products_message,
         });
     }, [isFetched]);
 
@@ -63,8 +63,8 @@ export const EditProductCategoryModal = ({onClose, productCategoryId}: GenericMo
             opened
         >
             <form onSubmit={form.onSubmit(handleEditProduct)}>
-                <ProductCategoryForm form={form}/>
-                <LoadingMask/>
+                <ProductCategoryForm form={form} />
+                <LoadingMask />
 
                 <Button type="submit" fullWidth mt="xl" disabled={mutation.isPending}>
                     {mutation.isPending ? t`Working...` : t`Edit Product Category`}

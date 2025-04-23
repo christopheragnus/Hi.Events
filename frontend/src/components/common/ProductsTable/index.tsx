@@ -1,9 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import {SortableProduct} from "./SortableProduct";
-import {SortableCategory} from "./SortableCategory";
+import React, { useEffect, useState } from 'react';
+import { SortableProduct } from "./SortableProduct";
+import { SortableCategory } from "./SortableCategory";
 import classes from "./ProductsTable.module.scss";
-import {IdParam, Product, ProductCategory} from "../../../types.ts";
-import {ProductsBlankSlate} from "./ProductsBlankSlate";
+import { IdParam, Product, ProductCategory } from "../../../types.ts";
+import { ProductsBlankSlate } from "./ProductsBlankSlate";
+import { IconCategory } from '@tabler/icons-react';
+
 
 export interface ProductCategoryListProps {
     initialCategories: ProductCategory[];
@@ -13,11 +15,11 @@ export interface ProductCategoryListProps {
 }
 
 export const ProductCategoryList: React.FC<ProductCategoryListProps> = ({
-                                                                            initialCategories,
-                                                                            event,
-                                                                            onCreateOpen,
-                                                                            searchTerm
-                                                                        }) => {
+    initialCategories,
+    event,
+    onCreateOpen,
+    searchTerm
+}) => {
     const [categories, setCategories] = useState<ProductCategory[]>(initialCategories);
     const [filteredCategories, setFilteredCategories] = useState<ProductCategory[]>(initialCategories);
 
@@ -25,10 +27,7 @@ export const ProductCategoryList: React.FC<ProductCategoryListProps> = ({
         setCategories(initialCategories);
     }, [initialCategories]);
 
-    if (!categories || categories.length === 0 || !event) {
-        return <>no categories or event</>;
-    }
-
+    // Moved useEffect hook before the early return to fix conditional hook call error
     useEffect(() => {
         if (searchTerm) {
             const lowercaseSearch = searchTerm.toLowerCase();
@@ -58,12 +57,20 @@ export const ProductCategoryList: React.FC<ProductCategoryListProps> = ({
         }
     }, [searchTerm, categories]);
 
+    // Replaced span with null to avoid literal string error and checked categories/event *after* hooks
+    if (!categories || categories.length === 0 || !event) {
+        return null;
+    }
+
+    console.log(filteredCategories)
+
     return (
         <div>
             {filteredCategories.length > 0 ? (
                 <div className={classes.categories}>
                     {filteredCategories.map((category) => {
-                        if (!category?.products) return <></>;
+                        // Add key to the fragment for cases where category.products is missing
+                        if (!category?.products) return <React.Fragment key={category.id} />;
 
                         return (
                             <SortableCategory
@@ -86,7 +93,7 @@ export const ProductCategoryList: React.FC<ProductCategoryListProps> = ({
                                             <SortableProduct
                                                 key={product.id}
                                                 product={product}
-                                                currencyCode={event.currency}
+                                                currencyCode={product.price_currency}
                                                 categories={categories}
                                                 category={category}
                                             />

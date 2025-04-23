@@ -1,0 +1,62 @@
+{
+  "data": [
+    {
+      "id": 1,   
+      "name": "Tickets",
+      "description": "T-shirts, hats, and other cool stuff.",
+      "event_id": 101,
+      "is_hidden": false,
+      "no_products_message": "More merchandise coming soon!",
+      "order": 1,
+      "products": [
+        {
+          "id": 428,
+          "title": "test2",
+          "type": "PAID",
+          "product_type": "TICKET",
+          "order": 2,
+          "description": "",
+          "price": 0,
+          "max_per_order": 100,
+          "min_per_order": 1,
+          "quantity_sold": 0,
+          "sale_start_date": null,
+          "sale_end_date": null,
+          "event_id": 418,
+          "initial_quantity_available": null,
+          "hide_before_sale_start_date": false,
+          "hide_after_sale_end_date": false,
+          "start_collapsed": false,
+          "show_quantity_remaining": false,
+          "hide_when_sold_out": false,
+          "is_hidden_without_promo_code": false,
+          "is_hidden": false,
+          "is_before_sale_start_date": false,
+          "is_after_sale_end_date": false,
+          "is_available": true,
+          "is_sold_out": false,
+          "taxes_and_fees": [],
+          "prices": [
+              {
+                  "id": 473,
+                  "label": null,
+                  "price": 0,
+                  "sale_start_date": null,
+                  "sale_end_date": null,
+                  "is_before_sale_start_date": false,
+                  "is_after_sale_end_date": false,
+                  "is_available": null,
+                  "initial_quantity_available": null,
+                  "quantity_sold": 0,
+                  "is_sold_out": false,
+                  "is_hidden": false,
+                  "off_sale_reason": null,
+                  "price_including_taxes_and_fees": 0
+              }
+          ],
+          "product_category_id": 444
+        }
+      ]
+    }
+  ]
+}

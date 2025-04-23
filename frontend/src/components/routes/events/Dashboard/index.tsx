@@ -1,37 +1,38 @@
-import {Event, QueryFilters} from "../../../../types.ts";
-import {useGetEvents} from "../../../../queries/useGetEvents.ts";
-import {EventCard} from "../../../common/EventCard";
-import {t} from "@lingui/macro";
-import {SearchBarWrapper} from "../../../common/SearchBar";
-import {Button, Menu, Skeleton} from "@mantine/core";
-import {IconCalendarPlus, IconChevronDown, IconPlus, IconUserPlus} from "@tabler/icons-react";
-import {ToolBar} from "../../../common/ToolBar";
-import {Pagination} from "../../../common/Pagination";
-import {useFilterQueryParamSync} from "../../../../hooks/useFilterQueryParamSync.ts";
-import {useDisclosure} from "@mantine/hooks";
-import {CreateEventModal} from "../../../modals/CreateEventModal";
-import {useGetOrganizers} from "../../../../queries/useGetOrganizers.ts";
-import {Navigate, useParams} from "react-router";
-import {CreateOrganizerModal} from "../../../modals/CreateOrganizerModal";
+import { Event, QueryFilters } from "../../../../types.ts";
+import { useGetEvents } from "../../../../queries/useGetEvents.ts";
+import { EventCard } from "../../../common/EventCard";
+import { t } from "@lingui/macro";
+import { SearchBarWrapper } from "../../../common/SearchBar";
+import { Button, Menu, Skeleton } from "@mantine/core";
+import { IconCalendarPlus, IconChevronDown, IconPlus, IconUserPlus } from "@tabler/icons-react";
+import { ToolBar } from "../../../common/ToolBar";
+import { Pagination } from "../../../common/Pagination";
+import { useFilterQueryParamSync } from "../../../../hooks/useFilterQueryParamSync.ts";
+import { clampUseMovePosition, useDisclosure } from "@mantine/hooks";
+import { CreateEventModal } from "../../../modals/CreateEventModal";
+import { useGetOrganizers } from "../../../../queries/useGetOrganizers.ts";
+import { Navigate, useParams } from "react-router";
+import { CreateOrganizerModal } from "../../../modals/CreateOrganizerModal";
 import classes from "./Dashboard.module.scss";
-import {getEventQueryFilters} from "../../../../utilites/eventsPageFiltersHelper.ts";
-import {EventsDashboardStatusButtons} from "../../../common/EventsDashboardStatusButtons";
-import {NoEventsBlankSlate} from "../../../common/NoEventsBlankSlate";
+import { getEventQueryFilters } from "../../../../utilites/eventsPageFiltersHelper.ts";
+import { EventsDashboardStatusButtons } from "../../../common/EventsDashboardStatusButtons";
+import { NoEventsBlankSlate } from "../../../common/NoEventsBlankSlate";
 
 const DashboardSkeleton = () => {
     return (
         <>
-            <Skeleton height={120} radius="l" mb="20px"/>
-            <Skeleton height={120} radius="l" mb="20px"/>
-            <Skeleton height={120} radius="l"/>
+            <Skeleton height={120} radius="l" mb="20px" />
+            <Skeleton height={120} radius="l" mb="20px" />
+            <Skeleton height={120} radius="l" />
         </>
     );
 }
 
 export function Dashboard() {
-    const {eventsState} = useParams();
+    const { eventsState } = useParams();
+    // searchParams is the query params from the url
     const [searchParams, setSearchParams] = useFilterQueryParamSync();
-    const [createModalOpen, {open: openCreateModal, close: closeCreateModal}] = useDisclosure(false);
+    const [createModalOpen, { open: openCreateModal, close: closeCreateModal }] = useDisclosure(false);
     const [createOrganizerModalOpen, {
         open: openCreateOrganizerModal,
         close: closeCreateOrganizerModal
@@ -42,12 +43,14 @@ export function Dashboard() {
         isFetching: isEventsFetching,
     } = useGetEvents(getEventQueryFilters(searchParams) as QueryFilters);
     const organizersQuery = useGetOrganizers();
+
+    console.log('eventData', eventData)
     const pagination = eventData?.meta;
     const events = eventData?.data;
     const organizers = organizersQuery?.data?.data;
 
     if (organizersQuery.isFetched && organizers?.length === 0) {
-        return <Navigate to={'/welcome'}/>
+        return <Navigate to={'/welcome'} />
     }
 
     const getHeading = () => {
@@ -59,6 +62,8 @@ export function Dashboard() {
             return t`Archived Events`;
         }
     }
+
+    console.log('searchParams', searchParams)
 
     return (
         <div className={classes.eventsContainer}>
@@ -74,17 +79,17 @@ export function Dashboard() {
             )}>
                 <>
                     <Menu
-                        transitionProps={{transition: 'pop-top-right'}}
+                        transitionProps={{ transition: 'pop-top-right' }}
                         position="bottom"
                         width={220}
                         withinPortal
                     >
                         <Menu.Target>
                             <Button
-                                leftSection={<IconPlus/>}
+                                leftSection={<IconPlus />}
                                 color={'green'}
                                 rightSection={
-                                    <IconChevronDown stroke={1.5}/>
+                                    <IconChevronDown stroke={1.5} />
                                 }
                                 pr={12}
                             >
@@ -123,24 +128,24 @@ export function Dashboard() {
             />
 
             {(events?.length === 0 && isEventsFetched)
-                && <NoEventsBlankSlate openCreateModal={openCreateModal} eventsState={eventsState}/>}
+                && <NoEventsBlankSlate openCreateModal={openCreateModal} eventsState={eventsState} />}
 
             <div>
-                {(isEventsFetching && !events) && <DashboardSkeleton/>}
+                {(isEventsFetching && !events) && <DashboardSkeleton />}
 
                 {events?.map((event: Event) =>
-                    (
-                        <EventCard key={event.id} event={event}/>
-                    ))}
+                (
+                    <EventCard key={event.id} event={event} />
+                ))}
             </div>
             {events && events.length > 0
                 && <Pagination value={searchParams.pageNumber}
-                               onChange={(value) => setSearchParams({pageNumber: value})}
-                               total={Number(pagination?.last_page)}
+                    onChange={(value) => setSearchParams({ pageNumber: value })}
+                    total={Number(pagination?.last_page)}
                 />
             }
-            {createModalOpen && <CreateEventModal onClose={closeCreateModal}/>}
-            {createOrganizerModalOpen && <CreateOrganizerModal onClose={closeCreateOrganizerModal}/>}
+            {createModalOpen && <CreateEventModal onClose={closeCreateModal} />}
+            {createOrganizerModalOpen && <CreateOrganizerModal onClose={closeCreateOrganizerModal} />}
         </div>
     );
 }

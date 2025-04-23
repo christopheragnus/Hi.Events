@@ -21,6 +21,9 @@ export const prettyDate = (date: string, tz: string): string => {
 };
 
 export const formatDate = (date: string, format: string, tz: string): string => {
+    console.log('date', date);
+    console.log('format', format);
+    console.log('tz', tz);
     return dayjs.utc(date).tz(tz).format(format);
 };
 

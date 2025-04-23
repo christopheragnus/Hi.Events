@@ -49,7 +49,7 @@ export const userClient = {
         return response.data;
     },
     me: async () => {
-        const response = await api.get<GenericDataResponse<User>>('users/me');
+        const response = await api.get<GenericDataResponse<User>>('accounts/me');
         return response.data;
     },
     resendInvitation: async (userId: IdParam) => {

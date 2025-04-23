@@ -1,46 +1,47 @@
-import {useGetEvent} from "../../../../queries/useGetEvent.ts";
-import {useParams} from "react-router";
-import {PageTitle} from "../../../common/PageTitle";
-import {PageBody} from "../../../common/PageBody";
-import {StatBoxes} from "../../../common/StatBoxes";
-import {useGetMe} from "../../../../queries/useGetMe.ts";
-import {t, Trans} from "@lingui/macro";
-import {AreaChart} from "@mantine/charts";
-import {Card} from "../../../common/Card";
+import { useGetEvent } from "../../../../queries/useGetEvent.ts";
+import { useParams } from "react-router";
+import { PageTitle } from "../../../common/PageTitle";
+import { PageBody } from "../../../common/PageBody";
+import { StatBoxes } from "../../../common/StatBoxes";
+import { useGetMe } from "../../../../queries/useGetMe.ts";
+import { t, Trans } from "@lingui/macro";
+import { AreaChart } from "@mantine/charts";
+import { Card } from "../../../common/Card";
 import classes from "./EventDashboard.module.scss";
-import {useGetEventStats} from "../../../../queries/useGetEventStats.ts";
-import {formatCurrency} from "../../../../utilites/currency.ts";
-import {formatDate} from "../../../../utilites/dates.ts";
-import {Button, Group, Skeleton} from "@mantine/core";
-import {useDisclosure, useMediaQuery} from "@mantine/hooks";
-import {IconShare, IconX} from "@tabler/icons-react";
-import {ShareModal} from "../../../modals/ShareModal";
-import {useGetAccount} from "../../../../queries/useGetAccount.ts";
-import {useUpdateEventStatus} from "../../../../mutations/useUpdateEventStatus.ts";
-import {confirmationDialog} from "../../../../utilites/confirmationDialog.tsx";
-import {showError, showSuccess} from "../../../../utilites/notifications.tsx";
-import {useEffect, useState} from 'react';
+import { useGetEventStats } from "../../../../queries/useGetEventStats.ts";
+import { formatCurrency } from "../../../../utilites/currency.ts";
+import { formatDate } from "../../../../utilites/dates.ts";
+import { Button, Group, Skeleton } from "@mantine/core";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
+import { IconShare, IconX } from "@tabler/icons-react";
+import { ShareModal } from "../../../modals/ShareModal";
+import { useGetAccount } from "../../../../queries/useGetAccount.ts";
+import { useUpdateEventStatus } from "../../../../mutations/useUpdateEventStatus.ts";
+import { confirmationDialog } from "../../../../utilites/confirmationDialog.tsx";
+import { showError, showSuccess } from "../../../../utilites/notifications.tsx";
+import { useEffect, useState } from 'react';
+import ErrorBoundary from "../../../common/ErrorBoundary/index.tsx";
 
 export const DashBoardSkeleton = () => {
     return (
         <>
-            <Skeleton height={120} radius="l" mb="20px"/>
-            <Skeleton height={350} radius="l" mb="20px"/>
-            <Skeleton height={350} radius="l"/>
+            <Skeleton height={120} radius="l" mb="20px" />
+            <Skeleton height={350} radius="l" mb="20px" />
+            <Skeleton height={350} radius="l" />
         </>
     );
 }
 
 export const EventDashboard = () => {
-    const {eventId} = useParams();
+    const { eventId } = useParams();
     const eventQuery = useGetEvent(eventId);
-    const {data: me} = useGetMe();
+    const { data: me } = useGetMe();
     const event = eventQuery?.data;
     const eventStatsQuery = useGetEventStats(eventId);
-    const {data: eventStats} = eventStatsQuery;
-    const [opened, {open, close}] = useDisclosure(false);
+    const { data: eventStats } = eventStatsQuery;
+    const [opened, { open, close }] = useDisclosure(false);
     const isMobile = useMediaQuery('(max-width: 768px)');
-    const {data: account, isFetched: accountIsFetched} = useGetAccount();
+    const { data: account, isFetched: accountIsFetched } = useGetAccount();
     const statusToggleMutation = useUpdateEventStatus();
 
     const [isChecklistVisible, setIsChecklistVisible] = useState(true);
@@ -81,7 +82,10 @@ export const EventDashboard = () => {
         })
     }
 
-    const dateRange = (eventStats && event)
+    console.log('event', event);
+    console.log('eventStats', eventStats);
+
+    const dateRange = (eventStats && event && eventStats.start_date && eventStats.end_date)
         ? `${formatDate(eventStats.start_date, 'MMM DD', event?.timezone)} - ${formatDate(eventStats.end_date, 'MMM DD', event?.timezone)}`
         : '';
 
@@ -93,7 +97,7 @@ export const EventDashboard = () => {
     return (
         <PageBody>
             <Group justify="space-between" align="center" mb={'5px'}>
-                <PageTitle style={{marginBottom: 0}}>
+                <PageTitle style={{ marginBottom: 0 }}>
                     {!isMobile && (
                         <Trans>
                             Welcome back{me?.first_name && ', ' + me?.first_name} 👋
@@ -111,7 +115,7 @@ export const EventDashboard = () => {
                         <Button
                             onClick={open}
                             variant="transparent"
-                            leftSection={<IconShare size={16}/>}
+                            leftSection={<IconShare size={16} />}
                         >
                             {t`Share Event`}
                         </Button>
@@ -125,10 +129,13 @@ export const EventDashboard = () => {
                 )}
             </Group>
 
-            {!event && <DashBoardSkeleton/>}
+            {!event && <DashBoardSkeleton />}
 
             {event && (<>
-                <StatBoxes/>
+                <ErrorBoundary>
+                    <StatBoxes />
+                </ErrorBoundary>
+
 
                 {shouldShowChecklist && (
                     <Card className={classes.setupCard}>
@@ -138,7 +145,7 @@ export const EventDashboard = () => {
                             role="button"
                             aria-label="dismiss"
                         >
-                            <IconX size={20}/>
+                            <IconX size={20} />
                         </div>
 
                         <div className={classes.setupCardContent}>
@@ -154,14 +161,14 @@ export const EventDashboard = () => {
                                             <div className={classes.checkboxContainer}>
                                                 <div
                                                     className={classes.checkbox}
-                                                    style={{backgroundColor: event?.status === 'LIVE' ? 'var(--tk-primary)' : 'transparent'}}
+                                                    style={{ backgroundColor: event?.status === 'LIVE' ? 'var(--tk-primary)' : 'transparent' }}
                                                 >
                                                     {event?.status === 'LIVE' && (
                                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                                                             xmlns="http://www.w3.org/2000/svg">
+                                                            xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M13.3333 4L6.00001 11.3333L2.66667 8"
-                                                                  stroke="white" strokeWidth="2" strokeLinecap="round"
-                                                                  strokeLinejoin="round"/>
+                                                                stroke="white" strokeWidth="2" strokeLinecap="round"
+                                                                strokeLinejoin="round" />
                                                         </svg>
                                                     )}
                                                 </div>
@@ -198,14 +205,14 @@ export const EventDashboard = () => {
                                             <div className={classes.checkboxContainer}>
                                                 <div
                                                     className={classes.checkbox}
-                                                    style={{backgroundColor: account?.stripe_connect_setup_complete ? 'var(--tk-primary)' : 'transparent'}}
+                                                    style={{ backgroundColor: account?.stripe_connect_setup_complete ? 'var(--tk-primary)' : 'transparent' }}
                                                 >
                                                     {account?.stripe_connect_setup_complete && (
                                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                                                             xmlns="http://www.w3.org/2000/svg">
+                                                            xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M13.3333 4L6.00001 11.3333L2.66667 8"
-                                                                  stroke="white" strokeWidth="2" strokeLinecap="round"
-                                                                  strokeLinejoin="round"/>
+                                                                stroke="white" strokeWidth="2" strokeLinecap="round"
+                                                                strokeLinejoin="round" />
                                                         </svg>
                                                     )}
                                                 </div>
@@ -237,9 +244,9 @@ export const EventDashboard = () => {
                     <div className={classes.chartCardTitle}>
                         <h2>{t`Product Sales`}</h2>
                         <div className={classes.dateRange}>
-                        <span>
-                            {dateRange}
-                        </span>
+                            <span>
+                                {dateRange}
+                            </span>
                         </div>
                     </div>
                     <AreaChart
@@ -252,16 +259,16 @@ export const EventDashboard = () => {
                         })) || []}
                         dataKey="date"
                         withLegend
-                        legendProps={{verticalAlign: 'bottom', height: 50}}
+                        legendProps={{ verticalAlign: 'bottom', height: 50 }}
 
                         series={[
-                            {name: 'orders_created', color: 'blue.6', label: t`Completed Orders`},
-                            {name: 'products_sold', color: 'blue.2', label: t`Products Sold`},
-                            {name: 'attendees_registered', color: 'blue.4', label: t`Attendees Registered`},
+                            { name: 'orders_created', color: 'blue.6', label: t`Completed Orders` },
+                            { name: 'products_sold', color: 'blue.2', label: t`Products Sold` },
+                            { name: 'attendees_registered', color: 'blue.4', label: t`Attendees Registered` },
                         ]}
                         curveType="bump"
                         tickLine="none"
-                        areaChartProps={{syncId: 'events'}}
+                        areaChartProps={{ syncId: 'events' }}
                     />
                 </Card>
 
@@ -269,9 +276,9 @@ export const EventDashboard = () => {
                     <div className={classes.chartCardTitle}>
                         <h2>{t`Revenue`}</h2>
                         <div className={classes.dateRange}>
-                        <span>
-                            {dateRange}
-                        </span>
+                            <span>
+                                {dateRange}
+                            </span>
                         </div>
                     </div>
 
@@ -289,16 +296,16 @@ export const EventDashboard = () => {
                         dataKey="date"
                         valueFormatter={(value) => formatCurrency(value, event.currency)}
                         withLegend
-                        legendProps={{verticalAlign: 'bottom', height: 50}}
+                        legendProps={{ verticalAlign: 'bottom', height: 50 }}
                         series={[
-                            {name: 'total_fees', label: t`Total Fees`, color: 'purple.3'},
-                            {name: 'total_sales_gross', label: t`Gross Sales`, color: 'grape.5'},
-                            {name: 'total_tax', label: t`Total Tax`, color: 'grape.7'},
-                            {name: 'total_refunded', label: t`Total Refunded`, color: 'red.6'},
+                            { name: 'total_fees', label: t`Total Fees`, color: 'purple.3' },
+                            { name: 'total_sales_gross', label: t`Gross Sales`, color: 'grape.5' },
+                            { name: 'total_tax', label: t`Total Tax`, color: 'grape.7' },
+                            { name: 'total_refunded', label: t`Total Refunded`, color: 'red.6' },
                         ]}
                         curveType="natural"
                         tickLine="none"
-                        areaChartProps={{syncId: 'events'}}
+                        areaChartProps={{ syncId: 'events' }}
                     />
                 </Card>
             </>)}
