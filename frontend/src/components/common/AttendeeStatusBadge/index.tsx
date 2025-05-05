@@ -1,12 +1,12 @@
-import {Attendee} from "../../../types.ts";
-import {Badge} from "@mantine/core";
+import { Attendee } from "../../../types.ts";
+import { Badge } from "@mantine/core";
 
 interface AttendeeStatusBadgeProps {
     attendee: Attendee;
     noStyle?: boolean;
 }
 
-export const AttendeeStatusBadge = ({attendee, noStyle = false}: AttendeeStatusBadgeProps) => {
+export const AttendeeStatusBadge = ({ attendee, noStyle = false }: AttendeeStatusBadgeProps) => {
     let color;
 
     switch (attendee.status) {
@@ -22,10 +22,10 @@ export const AttendeeStatusBadge = ({attendee, noStyle = false}: AttendeeStatusB
             break;
     }
 
-    const status = attendee.status.replace('_', ' ');
+    const status = attendee?.status && attendee?.status.includes("_") ? attendee.status.replace('_', ' ') : attendee.status;
 
     if (noStyle) {
-        return <span style={{color: color}}>{status}</span>;
+        return <span style={{ color: color }}>{status}</span>;
     }
 
     return (

@@ -1,6 +1,6 @@
-import {t} from "@lingui/macro";
-import {Anchor, Badge, Button, Group, Menu, Table as MantineTable, Tooltip} from '@mantine/core';
-import {Event, IdParam, Invoice, MessageType, Order} from "../../../types.ts";
+import { t } from "@lingui/macro";
+import { Anchor, Badge, Button, Group, Menu, Table as MantineTable, Tooltip } from '@mantine/core';
+import { Event, IdParam, Invoice, MessageType, Order } from "../../../types.ts";
 import {
     IconBasketCog,
     IconCheck,
@@ -13,36 +13,36 @@ import {
     IconSend,
     IconTrash
 } from "@tabler/icons-react";
-import {prettyDate, relativeDate} from "../../../utilites/dates.ts";
-import {ManageOrderModal} from "../../modals/ManageOrderModal";
-import {useDisclosure} from "@mantine/hooks";
-import {useState} from "react";
-import {CancelOrderModal} from "../../modals/CancelOrderModal";
-import {SendMessageModal} from "../../modals/SendMessageModal";
-import {notifications} from "@mantine/notifications";
-import {NoResultsSplash} from "../NoResultsSplash";
-import {OrderAmountPopover} from "../OrderAmountPopover";
-import {RefundOrderModal} from "../../modals/RefundOrderModal";
+import { prettyDate, relativeDate } from "../../../utilites/dates.ts";
+import { ManageOrderModal } from "../../modals/ManageOrderModal";
+import { useDisclosure } from "@mantine/hooks";
+import { useState } from "react";
+import { CancelOrderModal } from "../../modals/CancelOrderModal";
+import { SendMessageModal } from "../../modals/SendMessageModal";
+import { notifications } from "@mantine/notifications";
+import { NoResultsSplash } from "../NoResultsSplash";
+import { OrderAmountPopover } from "../OrderAmountPopover";
+import { RefundOrderModal } from "../../modals/RefundOrderModal";
 import classes from "./OrdersTable.module.scss";
-import {Card} from "../Card";
-import {Table, TableHead} from "../Table";
-import {ShowForDesktop, ShowForMobile} from "../Responsive/ShowHideComponents.tsx";
-import {useResendOrderConfirmation} from "../../../mutations/useResendOrderConfirmation.ts";
-import {OrderStatusBadge} from "../OrderStatusBadge";
-import {formatNumber} from "../../../utilites/helpers.ts";
-import {useUrlHash} from "../../../hooks/useUrlHash.ts";
-import {useMarkOrderAsPaid} from "../../../mutations/useMarkOrderAsPaid.ts";
-import {orderClient} from "../../../api/order.client.ts";
-import {downloadBinary} from "../../../utilites/download.ts";
-import {withLoadingNotification} from "../../../utilites/withLoadingNotification.tsx";
-import {showError, showSuccess} from "../../../utilites/notifications.tsx";
+import { Card } from "../Card";
+import { Table, TableHead } from "../Table";
+import { ShowForDesktop, ShowForMobile } from "../Responsive/ShowHideComponents.tsx";
+import { useResendOrderConfirmation } from "../../../mutations/useResendOrderConfirmation.ts";
+import { OrderStatusBadge } from "../OrderStatusBadge";
+import { formatNumber } from "../../../utilites/helpers.ts";
+import { useUrlHash } from "../../../hooks/useUrlHash.ts";
+import { useMarkOrderAsPaid } from "../../../mutations/useMarkOrderAsPaid.ts";
+import { orderClient } from "../../../api/order.client.ts";
+import { downloadBinary } from "../../../utilites/download.ts";
+import { withLoadingNotification } from "../../../utilites/withLoadingNotification.tsx";
+import { showError, showSuccess } from "../../../utilites/notifications.tsx";
 
 interface OrdersTableProps {
     event: Event,
     orders: Order[];
 }
 
-export const OrdersTable = ({orders, event}: OrdersTableProps) => {
+export const OrdersTable = ({ orders, event }: OrdersTableProps) => {
     const [isViewModalOpen, viewModal] = useDisclosure(false);
     const [isCancelModalOpen, cancelModal] = useDisclosure(false);
     const [isMessageModalOpen, messageModal] = useDisclosure(false);
@@ -75,25 +75,25 @@ export const OrdersTable = ({orders, event}: OrdersTableProps) => {
     }
 
     const handleMarkAsPaid = (eventId: IdParam, orderId: IdParam) => {
-        markAsPaidMutation.mutate({eventId, orderId}, {
+        markAsPaidMutation.mutate({ eventId, orderId }, {
             onSuccess: () => showSuccess(t`Order marked as paid`),
             onError: () => showError(t`There was an error marking the order as paid`)
         });
     }
 
     const handleResendConfirmation = (eventId: IdParam, orderId: IdParam) => {
-        resendConfirmationMutation.mutate({eventId, orderId}, {
+        resendConfirmationMutation.mutate({ eventId, orderId }, {
             onSuccess: () => {
                 notifications.show({
                     message: t`Your message has been sent`,
-                    icon: <IconCheck/>,
+                    icon: <IconCheck />,
                     position: 'top-center',
                 })
             },
             onError: () => {
                 notifications.show({
                     message: t`There was an error sending your message`,
-                    icon: <IconCheck/>,
+                    icon: <IconCheck />,
                     position: 'top-center',
                 })
             }
@@ -123,7 +123,7 @@ export const OrdersTable = ({orders, event}: OrdersTableProps) => {
         );
     };
 
-    const ActionMenu = ({order}: { order: Order }) => {
+    const ActionMenu = ({ order }: { order: Order }) => {
         const isRefundable = !order.is_free_order
             && order.status !== 'AWAITING_OFFLINE_PAYMENT'
             && order.payment_provider === 'STRIPE'
@@ -143,7 +143,7 @@ export const OrdersTable = ({orders, event}: OrdersTableProps) => {
                         <div className={classes.desktopAction}>
                             <ShowForDesktop>
                                 <Button size={"xs"} variant={"transparent"}>
-                                    <IconDotsVertical/>
+                                    <IconDotsVertical />
                                 </Button>
                             </ShowForDesktop>
                         </div>
@@ -153,40 +153,40 @@ export const OrdersTable = ({orders, event}: OrdersTableProps) => {
                 <Menu.Dropdown>
                     <Menu.Label>{t`Manage`}</Menu.Label>
                     <Menu.Item onClick={() => handleModalClick(order.id, viewModal)}
-                               leftSection={<IconBasketCog size={14}/>}>{t`Manage order`}</Menu.Item>
+                        leftSection={<IconBasketCog size={14} />}>{t`Manage order`}</Menu.Item>
                     <Menu.Item onClick={() => handleModalClick(order.id, messageModal)}
-                               leftSection={<IconSend size={14}/>}>{t`Message buyer`}</Menu.Item>
+                        leftSection={<IconSend size={14} />}>{t`Message buyer`}</Menu.Item>
 
                     {order.latest_invoice && (
                         <Menu.Item onClick={() => handleInvoiceDownload(order.latest_invoice as Invoice)}
-                                   leftSection={<IconReceipt2 size={14}/>}>{t`Download invoice`}</Menu.Item>
+                            leftSection={<IconReceipt2 size={14} />}>{t`Download invoice`}</Menu.Item>
                     )}
 
                     {order.status === 'AWAITING_OFFLINE_PAYMENT' && (
                         <Menu.Item onClick={() => handleMarkAsPaid(event.id, order.id)}
-                                   leftSection={<IconReceiptDollar size={14}/>}>{t`Mark as paid`}</Menu.Item>
+                            leftSection={<IconReceiptDollar size={14} />}>{t`Mark as paid`}</Menu.Item>
                     )}
 
                     {isRefundable && (
                         <Menu.Item onClick={() => handleModalClick(order.id, refundModal)}
-                                   leftSection={<IconReceiptRefund size={14}/>}>{t`Refund order`}</Menu.Item>
+                            leftSection={<IconReceiptRefund size={14} />}>{t`Refund order`}</Menu.Item>
                     )}
 
                     {order.status === 'COMPLETED' && (
                         <Menu.Item
                             onClick={() => handleResendConfirmation(event.id, order.id)}
-                            leftSection={<IconRepeat size={14}/>}>
+                            leftSection={<IconRepeat size={14} />}>
                             {t`Resend order email`}
                         </Menu.Item>
                     )}
 
                     {order.status !== 'CANCELLED' && (
                         <>
-                            <Menu.Divider/>
+                            <Menu.Divider />
                             <Menu.Label>{t`Danger zone`}</Menu.Label>
                             <Menu.Item color="red"
-                                       onClick={() => handleModalClick(order.id, cancelModal)}
-                                       leftSection={<IconTrash size={14}/>}>
+                                onClick={() => handleModalClick(order.id, cancelModal)}
+                                leftSection={<IconTrash size={14} />}>
                                 {t`Cancel order`}
                             </Menu.Item>
                         </>
@@ -231,7 +231,7 @@ export const OrdersTable = ({orders, event}: OrdersTableProps) => {
                                     </Anchor>
                                 </MantineTable.Td>
                                 <MantineTable.Td>
-                                    <OrderAmountPopover event={event} order={order}/>
+                                    <OrderAmountPopover event={event} order={order} />
                                 </MantineTable.Td>
                                 <MantineTable.Td>
                                     <Tooltip.Floating label={prettyDate(order.created_at, event.timezone)}>
@@ -241,10 +241,10 @@ export const OrdersTable = ({orders, event}: OrdersTableProps) => {
                                     </Tooltip.Floating>
                                 </MantineTable.Td>
                                 <MantineTable.Td>
-                                    <OrderStatusBadge order={order}/>
+                                    <OrderStatusBadge order={order} />
                                 </MantineTable.Td>
                                 <MantineTable.Td>
-                                    <ActionMenu order={order}/>
+                                    <ActionMenu order={order} />
                                 </MantineTable.Td>
                             </MantineTable.Tr>
                         );
@@ -262,18 +262,18 @@ export const OrdersTable = ({orders, event}: OrdersTableProps) => {
                         <div className={classes.colDetails}>
 
                             <div className={classes.amount}>
-                                <OrderAmountPopover event={event} order={order}/>
+                                <OrderAmountPopover event={event} order={order} />
                             </div>
                             <div className={classes.name}>
                                 {order.first_name + ' ' + order.last_name}
                             </div>
                             <Anchor className={classes.email} target={'_blank'}
-                                    href={`mailto:${order.email}`}>{order.email}</Anchor>
+                                href={`mailto:${order.email}`}>{order.email}</Anchor>
 
                             <span className={classes.reference}>
                                 {t`Reference`}: <b>{order.public_id}</b>
                                 <Anchor onClick={() => handleModalClick(order.id, viewModal)}>
-                                    <IconInfoCircle size={13}/>
+                                    <IconInfoCircle size={13} />
                                 </Anchor>
                             </span>
                             <Tooltip.Floating label={prettyDate(order.created_at, event.timezone)}>
@@ -285,10 +285,10 @@ export const OrdersTable = ({orders, event}: OrdersTableProps) => {
                         </div>
                         <div className={classes.colActions}>
                             <div className={classes.status}>
-                                <OrderStatusBadge order={order}/>
+                                <OrderStatusBadge order={order} />
                             </div>
                             <div className={classes.actionButton}>
-                                <ActionMenu order={order}/>
+                                <ActionMenu order={order} />
                             </div>
                         </div>
                     </Card>
@@ -299,13 +299,13 @@ export const OrdersTable = ({orders, event}: OrdersTableProps) => {
 
     return (
         <>
-            <OrderTableDesktop/>
-            <OrderTableMobile/>
+            <OrderTableDesktop />
+            <OrderTableMobile />
             {orderId && (
                 <>
-                    {isRefundModalOpen && <RefundOrderModal onClose={refundModal.close} orderId={orderId}/>}
-                    {isViewModalOpen && <ManageOrderModal onClose={viewModal.close} orderId={orderId}/>}
-                    {isCancelModalOpen && <CancelOrderModal onClose={cancelModal.close} orderId={orderId}/>}
+                    {isRefundModalOpen && <RefundOrderModal onClose={refundModal.close} orderId={orderId} />}
+                    {isViewModalOpen && <ManageOrderModal onClose={viewModal.close} orderId={orderId} />}
+                    {isCancelModalOpen && <CancelOrderModal onClose={cancelModal.close} orderId={orderId} />}
                     {isMessageModalOpen && <SendMessageModal
                         onClose={messageModal.close}
                         orderId={orderId}

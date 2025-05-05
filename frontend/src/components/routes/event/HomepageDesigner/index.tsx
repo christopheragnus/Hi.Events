@@ -1,24 +1,25 @@
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import classes from './HomepageDesigner.module.scss';
-import {useParams} from "react-router";
-import {useGetEventSettings} from "../../../../queries/useGetEventSettings.ts";
-import {useUpdateEventSettings} from "../../../../mutations/useUpdateEventSettings.ts";
-import {useFormErrorResponseHandler} from "../../../../hooks/useFormErrorResponseHandler.tsx";
-import {EventSettings, IdParam} from "../../../../types.ts";
-import {showSuccess} from "../../../../utilites/notifications.tsx";
-import {t} from "@lingui/macro";
-import {useForm} from "@mantine/form";
-import {Button, ColorInput, Group, TextInput} from "@mantine/core";
-import {CoverUpload} from "./CoverUpload";
-import {IconColorPicker, IconHelp, IconPhoto} from "@tabler/icons-react";
-import {Tooltip} from "../../../common/Tooltip";
-import {CustomSelect} from "../../../common/CustomSelect";
-import {useGetEventImages} from "../../../../queries/useGetEventImages.ts";
-import {eventPreviewPath} from "../../../../utilites/urlHelper.ts";
-import {LoadingMask} from "../../../common/LoadingMask";
+import { useParams } from "react-router";
+import { useGetEventSettings } from "../../../../queries/useGetEventSettings.ts";
+import { useUpdateEventSettings } from "../../../../mutations/useUpdateEventSettings.ts";
+import { useFormErrorResponseHandler } from "../../../../hooks/useFormErrorResponseHandler.tsx";
+import { EventSettings, IdParam } from "../../../../types.ts";
+import { showSuccess } from "../../../../utilites/notifications.tsx";
+import { t } from "@lingui/macro";
+import { useForm } from "@mantine/form";
+import { Button, ColorInput, Group, TextInput } from "@mantine/core";
+import { CoverUpload } from "./CoverUpload";
+import { IconColorPicker, IconHelp, IconPhoto } from "@tabler/icons-react";
+import { Tooltip } from "../../../common/Tooltip";
+import { CustomSelect } from "../../../common/CustomSelect";
+import { useGetEventImages } from "../../../../queries/useGetEventImages.ts";
+import { eventPreviewPath } from "../../../../utilites/urlHelper.ts";
+import { LoadingMask } from "../../../common/LoadingMask";
+import ErrorBoundary from "../../../common/ErrorBoundary";
 
 const HomepageDesigner = () => {
-    const {eventId} = useParams();
+    const { eventId } = useParams();
     const eventSettingsQuery = useGetEventSettings(eventId);
     const eventImagesQuery = useGetEventImages(eventId);
     const updateMutation = useUpdateEventSettings();
@@ -78,7 +79,7 @@ const HomepageDesigner = () => {
 
     const handleSubmit = (values: Partial<EventSettings>) => {
         updateMutation.mutate(
-            {eventSettings: values, eventId: eventId},
+            { eventSettings: values, eventId: eventId },
             {
                 onSuccess: () => {
                     showSuccess(t`Successfully Updated Homepage Design`);
@@ -96,7 +97,7 @@ const HomepageDesigner = () => {
 
             if (JSON.stringify(settingsToSend) !== JSON.stringify(lastSentSettings.current)) {
                 iframeRef.current.contentWindow.postMessage(
-                    {type: "UPDATE_SETTINGS", settings: settingsToSend},
+                    { type: "UPDATE_SETTINGS", settings: settingsToSend },
                     "*"
                 );
                 lastSentSettings.current = settingsToSend;
@@ -116,10 +117,10 @@ const HomepageDesigner = () => {
                     <Group justify={'space-between'}>
                         <h3>{t`Cover`}</h3>
                         <Tooltip label={t`We recommend dimensions of 2160px by 1080px, and a maximum file size of 5MB`}>
-                            <IconHelp size={20}/>
+                            <IconHelp size={20} />
                         </Tooltip>
                     </Group>
-                    <CoverUpload/>
+                    <CoverUpload />
 
                     <h3>{t`Colors`}</h3>
                     <form onSubmit={form.onSubmit(handleSubmit as any)}>
@@ -127,13 +128,13 @@ const HomepageDesigner = () => {
                             <CustomSelect
                                 optionList={[
                                     {
-                                        icon: <IconColorPicker/>,
+                                        icon: <IconColorPicker />,
                                         label: t`Color`,
                                         value: 'COLOR',
                                         description: t`Choose a color for your background`,
                                     },
                                     {
-                                        icon: <IconPhoto/>,
+                                        icon: <IconPhoto />,
                                         label: t`Use cover image`,
                                         value: 'MIRROR_COVER_IMAGE',
                                         description: t`Use a blurred version of the cover image as the background`,
@@ -173,15 +174,18 @@ const HomepageDesigner = () => {
             <div className={classes.previewContainer}>
                 <h2>{t`Homepage Preview`}</h2>
                 <div className={classes.iframeContainer}>
+
                     {iframeSrc ? (
-                        <iframe
-                            ref={iframeRef}
-                            src={iframeSrc}
-                            title="Event Preview"
-                            onLoad={() => setIframeLoaded(true)}
-                        />
+                        <ErrorBoundary>
+                            <iframe
+                                ref={iframeRef}
+                                src={iframeSrc}
+                                title="Event Preview"
+                                onLoad={() => setIframeLoaded(true)}
+                            />
+                        </ErrorBoundary>
                     ) : (
-                        <LoadingMask/>
+                        <LoadingMask />
                     )}
                 </div>
             </div>

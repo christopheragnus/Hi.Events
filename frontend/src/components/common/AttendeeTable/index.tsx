@@ -1,44 +1,47 @@
-import {Anchor, Avatar, Badge, Button, Table as MantineTable,} from '@mantine/core';
-import {Attendee, MessageType} from "../../../types.ts";
-import {IconMailForward, IconPlus, IconSend, IconTrash, IconUserCog} from "@tabler/icons-react";
-import {getInitials, getProductFromEvent} from "../../../utilites/helpers.ts";
-import {Table, TableHead} from "../Table";
-import {useDisclosure} from "@mantine/hooks";
-import {SendMessageModal} from "../../modals/SendMessageModal";
-import {useState} from "react";
-import {NoResultsSplash} from "../NoResultsSplash";
-import {useParams} from "react-router";
-import {useGetEvent} from "../../../queries/useGetEvent.ts";
+import { Anchor, Avatar, Badge, Button, Table as MantineTable, } from '@mantine/core';
+import { Attendee, MessageType } from "../../../types.ts";
+import { IconMailForward, IconPlus, IconSend, IconTrash, IconUserCog } from "@tabler/icons-react";
+import { getInitials, getProductFromEvent } from "../../../utilites/helpers.ts";
+import { Table, TableHead } from "../Table";
+import { useDisclosure } from "@mantine/hooks";
+import { SendMessageModal } from "../../modals/SendMessageModal";
+import { useState } from "react";
+import { NoResultsSplash } from "../NoResultsSplash";
+import { useParams } from "react-router";
+import { useGetEvent } from "../../../queries/useGetEvent.ts";
 import Truncate from "../Truncate";
-import {notifications} from "@mantine/notifications";
-import {useModifyAttendee} from "../../../mutations/useModifyAttendee.ts";
-import {showError, showSuccess} from "../../../utilites/notifications.tsx";
-import {t, Trans} from "@lingui/macro";
-import {confirmationDialog} from "../../../utilites/confirmationDialog.tsx";
-import {useResendAttendeeTicket} from "../../../mutations/useResendAttendeeTicket.ts";
-import {ManageAttendeeModal} from "../../modals/ManageAttendeeModal";
-import {ActionMenu} from '../ActionMenu';
-import {AttendeeStatusBadge} from "../AttendeeStatusBadge";
+import { notifications } from "@mantine/notifications";
+import { useModifyAttendee } from "../../../mutations/useModifyAttendee.ts";
+import { showError, showSuccess } from "../../../utilites/notifications.tsx";
+import { t, Trans } from "@lingui/macro";
+import { confirmationDialog } from "../../../utilites/confirmationDialog.tsx";
+import { useResendAttendeeTicket } from "../../../mutations/useResendAttendeeTicket.ts";
+import { ManageAttendeeModal } from "../../modals/ManageAttendeeModal";
+import { ActionMenu } from '../ActionMenu';
+import { AttendeeStatusBadge } from "../AttendeeStatusBadge";
+import ErrorBoundary from '../ErrorBoundary/index.tsx';
 
 interface AttendeeTableProps {
     attendees: Attendee[];
     openCreateModal: () => void;
 }
 
-export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) => {
-    const {eventId} = useParams();
+export const AttendeeTable = ({ attendees, openCreateModal }: AttendeeTableProps) => {
+    const { eventId } = useParams();
     const [isMessageModalOpen, messageModal] = useDisclosure(false);
     const [isViewModalOpen, viewModalOpen] = useDisclosure(false);
     const [selectedAttendee, setSelectedAttendee] = useState<Attendee>();
-    const {data: event} = useGetEvent(eventId);
+    const { data: event } = useGetEvent(eventId);
     const modifyMutation = useModifyAttendee();
     const resendTicketMutation = useResendAttendeeTicket();
 
     const handleModalClick = (attendee: Attendee, modal: {
         open: () => void
     }) => {
+        console.log('open modal')
         setSelectedAttendee(attendee);
         modal.open();
+        console.log(isViewModalOpen)
     }
 
     const handleResendTicket = (attendee: Attendee) => {
@@ -62,7 +65,7 @@ export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) 
                     </p>
                     <Button
                         size={'xs'}
-                        leftSection={<IconPlus/>}
+                        leftSection={<IconPlus />}
                         color={'green'}
                         onClick={() => openCreateModal()}>{t`Manually add an Attendee`}
                     </Button>
@@ -115,6 +118,10 @@ export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) 
                 </TableHead>
                 <MantineTable.Tbody>
                     {attendees.map((attendee) => {
+                        // console.log('event', event);
+                        // console.log('attendee', attendee);
+                        const ticket_title = getProductFromEvent(attendee.product_id, event)?.title
+
                         return (
                             <MantineTable.Tr key={attendee.id}>
                                 <MantineTable.Td>
@@ -124,52 +131,54 @@ export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) 
                                 <MantineTable.Td>
                                     <b>
                                         <Truncate length={20}
-                                                  text={attendee.first_name + ' ' + attendee.last_name}/>
+                                            text={attendee.first_name + ' ' + attendee.last_name} />
                                     </b>
                                     <div>
-                                        {attendee.public_id}
+                                        {"Public ID:"}<code>{attendee.public_id}</code>
                                     </div>
                                 </MantineTable.Td>
                                 <MantineTable.Td>
                                     <Anchor target={'_blank'} href={`mailto:${attendee.email}`}>
-                                        <Truncate length={25} text={attendee.email}/>
+                                        <Truncate length={25} text={attendee.email} />
                                     </Anchor>
                                 </MantineTable.Td>
                                 <MantineTable.Td>
                                     <Anchor
                                         href={`/manage/event/${eventId}/orders#order-${attendee.order?.id}`}>
                                         <Badge variant={'outline'}>
-                                            {attendee.order?.public_id}
+                                            {attendee.order?.id}
                                         </Badge>
                                     </Anchor>
                                 </MantineTable.Td>
                                 <MantineTable.Td>
                                     <Truncate
-                                        text={getProductFromEvent(attendee.product_id, event)?.title}
+                                        text={ticket_title}
                                         length={25}
                                     />
                                 </MantineTable.Td>
                                 <MantineTable.Td>
-                                    <AttendeeStatusBadge attendee={attendee}/>
+                                    <ErrorBoundary>
+                                        <AttendeeStatusBadge attendee={attendee} />
+                                    </ErrorBoundary>
                                 </MantineTable.Td>
-                                <MantineTable.Td style={{paddingRight: 0}}>
+                                <MantineTable.Td style={{ paddingRight: 0 }}>
                                     <ActionMenu itemsGroups={[
                                         {
                                             label: t`Actions`,
                                             items: [
                                                 {
                                                     label: t`Manage attendee`,
-                                                    icon: <IconUserCog size={14}/>,
+                                                    icon: <IconUserCog size={14} />,
                                                     onClick: () => handleModalClick(attendee, viewModalOpen),
                                                 },
                                                 {
                                                     label: t`Message attendee`,
-                                                    icon: <IconSend size={14}/>,
+                                                    icon: <IconSend size={14} />,
                                                     onClick: () => handleModalClick(attendee, messageModal),
                                                 },
                                                 {
                                                     label: t`Resend ticket email`,
-                                                    icon: <IconMailForward size={14}/>,
+                                                    icon: <IconMailForward size={14} />,
                                                     onClick: () => handleResendTicket(attendee),
                                                     visible: attendee.status === 'ACTIVE',
                                                 },
@@ -180,13 +189,13 @@ export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) 
                                             items: [
                                                 {
                                                     label: attendee.status === 'CANCELLED' ? t`Activate` : t`Cancel` + ` ` + t`ticket`,
-                                                    icon: <IconTrash size={14}/>,
+                                                    icon: <IconTrash size={14} />,
                                                     onClick: () => handleCancel(attendee),
                                                     color: attendee.status === 'CANCELLED' ? 'green' : 'red',
                                                 },
                                             ],
                                         },
-                                    ]}/>
+                                    ]} />
                                 </MantineTable.Td>
                             </MantineTable.Tr>
                         );
@@ -199,6 +208,7 @@ export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) 
                 attendeeId={selectedAttendee.id}
                 messageType={MessageType.IndividualAttendees}
             />}
+            {console.log('selectedAttendee', selectedAttendee)}
             {(selectedAttendee?.id && isViewModalOpen) && <ManageAttendeeModal
                 attendeeId={selectedAttendee.id}
                 onClose={viewModalOpen.close}

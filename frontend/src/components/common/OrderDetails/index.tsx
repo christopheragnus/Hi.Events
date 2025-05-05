@@ -1,21 +1,22 @@
-import {Anchor, Tooltip} from "@mantine/core";
-import {prettyDate, relativeDate} from "../../../utilites/dates.ts";
-import {OrderStatusBadge} from "../OrderStatusBadge";
-import {Currency} from "../Currency";
-import {Card, CardVariant} from "../Card";
-import {Event, Order} from "../../../types.ts";
+import { Anchor, Tooltip } from "@mantine/core";
+import { prettyDate, relativeDate } from "../../../utilites/dates.ts";
+import { OrderStatusBadge } from "../OrderStatusBadge";
+import { Currency } from "../Currency";
+import { Card, CardVariant } from "../Card";
+import { Event, Order } from "../../../types.ts";
 import classes from "./OrderDetails.module.scss";
-import {t} from "@lingui/macro";
-import {formatAddress} from "../../../utilites/formatAddress.tsx";
+import { t } from "@lingui/macro";
+import { formatAddress } from "../../../utilites/formatAddress.tsx";
 import React from "react";
-import {capitalize} from "../../../utilites/stringHelper.ts";
+import { capitalize } from "../../../utilites/stringHelper.ts";
 
-export const OrderDetails = ({order, event, cardVariant = 'lightGray', style = {}}: {
+export const OrderDetails = ({ order, event, cardVariant = 'lightGray', style = {} }: {
     order: Order,
     event: Event,
     cardVariant?: CardVariant,
     style?: React.CSSProperties
 }) => {
+    console.log('order', order);
     return (
         <Card className={classes.orderDetails} variant={cardVariant} style={style}>
             <div className={classes.block}>
@@ -40,9 +41,9 @@ export const OrderDetails = ({order, event, cardVariant = 'lightGray', style = {
                 </div>
                 <div className={classes.amount}>
                     <Tooltip label={prettyDate(order.created_at, event.timezone)} position={'bottom'} withArrow>
-                            <span>
-                                {relativeDate(order.created_at)}
-                            </span>
+                        <span>
+                            {relativeDate(order.created_at)}
+                        </span>
                     </Tooltip>
                 </div>
             </div>
@@ -51,7 +52,7 @@ export const OrderDetails = ({order, event, cardVariant = 'lightGray', style = {
                     {t`Status`}
                 </div>
                 <div className={classes.amount}>
-                    <OrderStatusBadge order={order} variant={'outline'}/>
+                    <OrderStatusBadge order={order} variant={'outline'} />
                 </div>
             </div>
             <div className={classes.block}>
@@ -59,7 +60,7 @@ export const OrderDetails = ({order, event, cardVariant = 'lightGray', style = {
                     {t`Total order amount`}
                 </div>
                 <div className={classes.amount}>
-                    <Currency currency={order.currency} price={order.total_gross}/>
+                    <Currency currency={order.currency || 'USD'} price={order.total_gross} />
                 </div>
             </div>
             <div className={classes.block}>
@@ -67,7 +68,7 @@ export const OrderDetails = ({order, event, cardVariant = 'lightGray', style = {
                     {t`Total refunded`}
                 </div>
                 <div className={classes.amount}>
-                    <Currency currency={order.currency} price={order.total_refunded}/>
+                    <Currency currency={order.currency || 'USD'} price={order.total_refunded} />
                 </div>
             </div>
             {order.payment_provider && (

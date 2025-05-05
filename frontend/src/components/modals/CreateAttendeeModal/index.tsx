@@ -1,17 +1,17 @@
-import {Modal} from "../../common/Modal";
-import {GenericModalProps, ProductCategory, ProductType} from "../../../types.ts";
-import {Button} from "../../common/Button";
-import {useNavigate, useParams} from "react-router";
-import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
-import {useForm} from "@mantine/form";
-import {LoadingOverlay, NumberInput, Select, Switch, TextInput} from "@mantine/core";
-import {useGetEvent} from "../../../queries/useGetEvent.ts";
-import {CreateAttendeeRequest} from "../../../api/attendee.client.ts";
-import {useCreateAttendee} from "../../../mutations/useCreateAttendee.ts";
-import {showSuccess} from "../../../utilites/notifications.tsx";
-import {t, Trans} from "@lingui/macro";
-import {useEffect} from "react";
-import {InputGroup} from "../../common/InputGroup";
+import { Modal } from "../../common/Modal";
+import { GenericModalProps, ProductCategory, ProductType } from "../../../types.ts";
+import { Button } from "../../common/Button";
+import { useNavigate, useParams } from "react-router";
+import { useFormErrorResponseHandler } from "../../../hooks/useFormErrorResponseHandler.tsx";
+import { useForm } from "@mantine/form";
+import { LoadingOverlay, NumberInput, Select, Switch, TextInput } from "@mantine/core";
+import { useGetEvent } from "../../../queries/useGetEvent.ts";
+import { CreateAttendeeRequest } from "../../../api/attendee.client.ts";
+import { useCreateAttendee } from "../../../mutations/useCreateAttendee.ts";
+import { showSuccess } from "../../../utilites/notifications.tsx";
+import { t, Trans } from "@lingui/macro";
+import { useEffect } from "react";
+import { InputGroup } from "../../common/InputGroup";
 import {
     getClientLocale,
     getLocaleName,
@@ -19,13 +19,13 @@ import {
     localeToNameMap,
     SupportedLocales
 } from "../../../locales.ts";
-import {ProductSelector} from "../../common/ProductSelector";
-import {getProductsFromEvent} from "../../../utilites/helpers.ts";
+import { ProductSelector } from "../../common/ProductSelector";
+import { getProductsFromEvent } from "../../../utilites/helpers.ts";
 
-export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
-    const {eventId} = useParams();
+export const CreateAttendeeModal = ({ onClose }: GenericModalProps) => {
+    const { eventId } = useParams();
     const errorHandler = useFormErrorResponseHandler();
-    const {data: event, isFetched: isEventFetched} = useGetEvent(eventId);
+    const { data: event, isFetched: isEventFetched } = useGetEvent(eventId);
     const mutation = useCreateAttendee();
     const navigate = useNavigate();
     const eventProducts = getProductsFromEvent(event);
@@ -46,6 +46,9 @@ export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
 
     useEffect(() => {
         if (event?.product_categories) {
+            console.log(form.values.product_id)
+            console.log('ep', eventProducts)
+
             form.setFieldValue(
                 'product_price_id',
                 String(eventProducts?.find(product => product.id == form.values.product_id)?.prices?.[0]?.id)
@@ -60,15 +63,15 @@ export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
             }
 
             taxesAndFees?.forEach((tax, index) => {
-                    form.setFieldValue(
-                        `taxes_and_fees.${index}`,
-                        {
-                            tax_or_fee_id: tax.id,
-                            amount: 0.00,
-                            name: tax.name,
-                        },
-                    );
-                }
+                form.setFieldValue(
+                    `taxes_and_fees.${index}`,
+                    {
+                        tax_or_fee_id: tax.id,
+                        amount: 0.00,
+                        name: tax.name,
+                    },
+                );
+            }
             );
         }
     }, [form.values.product_id]);
@@ -88,7 +91,7 @@ export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
 
     if (!event?.product_categories) {
         return (
-            <LoadingOverlay visible/>
+            <LoadingOverlay visible />
         )
     }
 
@@ -171,26 +174,26 @@ export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
                 />
 
                 {form.values.taxes_and_fees?.map((tax, index) => {
-                        return (
-                            <NumberInput
-                                required
-                                mt={20}
-                                fixedDecimalScale
-                                {...form.getInputProps(`taxes_and_fees.${index}.amount`)}
-                                label={tax.name + ' ' + t`paid` + ' (' + event?.currency + ')'}
-                                placeholder="0.00"
-                                decimalScale={2}
-                                step={1}
-                                min={0}
-                            />
-                        )
-                    }
+                    return (
+                        <NumberInput
+                            required
+                            mt={20}
+                            fixedDecimalScale
+                            {...form.getInputProps(`taxes_and_fees.${index}.amount`)}
+                            label={tax.name + ' ' + t`paid` + ' (' + event?.currency + ')'}
+                            placeholder="0.00"
+                            decimalScale={2}
+                            step={1}
+                            min={0}
+                        />
+                    )
+                }
                 )}
 
                 <Switch
                     mt={20}
                     label={t`Send order confirmation and ticket email`}
-                    {...form.getInputProps('send_confirmation_email', {type: 'checkbox'})}
+                    {...form.getInputProps('send_confirmation_email', { type: 'checkbox' })}
                 />
                 <Button type="submit" fullWidth mt="xl" disabled={mutation.isPending}>
                     {mutation.isPending ? t`Working` + '...' : t`Create Attendee`}

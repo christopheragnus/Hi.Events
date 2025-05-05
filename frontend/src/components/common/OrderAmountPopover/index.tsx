@@ -1,18 +1,18 @@
-import {Event, Order} from "../../../types.ts";
-import {useDisclosure} from "@mantine/hooks";
-import {Badge, Flex, MantineColor, Popover} from "@mantine/core";
-import {IconInfoCircle} from "@tabler/icons-react";
-import {formatCurrency} from "../../../utilites/currency.ts";
-import {OrderSummary} from "../OrderSummary";
+import { Event, Order } from "../../../types.ts";
+import { useDisclosure } from "@mantine/hooks";
+import { Badge, Flex, MantineColor, Popover } from "@mantine/core";
+import { IconInfoCircle } from "@tabler/icons-react";
+import { formatCurrency } from "../../../utilites/currency.ts";
+import { OrderSummary } from "../OrderSummary";
 import classes from "./OrderAmountPopover.module.scss";
-import {formatStatus} from "../../../utilites/helpers.ts";
+import { formatStatus } from "../../../utilites/helpers.ts";
 
 interface OrderAmountPopoverProps {
     event: Event;
     order: Order;
 }
 
-export const OrderAmountPopover = ({event, order}: OrderAmountPopoverProps) => {
+export const OrderAmountPopover = ({ event, order }: OrderAmountPopoverProps) => {
     const [isPopoverOpen, popover] = useDisclosure(false);
 
     const badgeColor = (): MantineColor => {
@@ -31,19 +31,20 @@ export const OrderAmountPopover = ({event, order}: OrderAmountPopoverProps) => {
     return (
         <Popover width={350} position="bottom" withArrow shadow="md" opened={isPopoverOpen}>
             <Popover.Target>
-                <Badge variant={'light'} style={{cursor: 'help', border: '1px solid'}} rightSection={
+                <Badge variant={'light'} style={{ cursor: 'help', border: '1px solid' }} rightSection={
                     <Flex align={"center"}>
-                        <IconInfoCircle size={14}/>
+                        <IconInfoCircle size={14} />
                     </Flex>
                 } color={badgeColor()} onMouseEnter={popover.open} onMouseLeave={popover.close}>
-                    {formatCurrency(order.total_gross, event.currency)}
+
+                    {formatCurrency(order.total_gross_cents, event.currency)}
                 </Badge>
             </Popover.Target>
-            <Popover.Dropdown style={{pointerEvents: 'none'}}>
+            <Popover.Dropdown style={{ pointerEvents: 'none' }}>
                 <div className={classes.paymentStatus}>
                     {formatStatus(String(order.payment_status))}
                 </div>
-                <OrderSummary event={event} order={order} showFreeWhenZeroTotal={false}/>
+                <OrderSummary event={event} order={order} showFreeWhenZeroTotal={false} />
             </Popover.Dropdown>
         </Popover>
     )

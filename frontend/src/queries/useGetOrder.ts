@@ -10,6 +10,7 @@ export const useGetOrder = (eventId: IdParam, orderId: IdParam) => {
 
         queryFn: async () => {
             const {data} = await orderClient.findByID(Number(eventId), Number(orderId));
+            console.log('data', data);
             return data;
         },
 

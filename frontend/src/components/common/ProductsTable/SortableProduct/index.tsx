@@ -84,9 +84,9 @@ export const SortableProduct = ({ product, currencyCode, category, categories }:
 
     const getPriceRange = (product: Product) => {
         const productPrices: ProductPrice[] = product.prices as ProductPrice[];
-
-        if (product.price_cents) {
-            return formatCurrency(product.price_cents, currencyCode);
+        // console.log(productPrices)
+        if (product.price) {
+            return formatCurrency(product.price.cents, currencyCode);
         }
 
         if (!Array.isArray(productPrices) || productPrices.length === 0) {

@@ -276,7 +276,7 @@ export interface SortDirectionLabel {
 }
 
 export interface PaginationData {
-    total: number;
+    total_pages: number;
     per_page: number;
     current_page: number;
     links: string[];
@@ -287,6 +287,10 @@ export interface PaginationData {
     allowed_sorts: Record<string, SortDirectionLabel>;
     default_sort: string;
     default_sort_direction: string;
+}
+
+export interface PaginationMeta {
+    pagination: PaginationData;
 }
 
 export interface GenericDataResponse<T> {

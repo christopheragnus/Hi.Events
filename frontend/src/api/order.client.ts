@@ -65,6 +65,7 @@ export const orderClient = {
 
     findByID: async (eventId: IdParam, orderId: IdParam) => {
         const response = await api.get<GenericDataResponse<Order>>(`events/${eventId}/orders/${orderId}`);
+        console.log('response', response.data);
         return response.data;
     },
 
